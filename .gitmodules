@@ -2,3 +2,12 @@
 	path = blasr
 	url = https://github.com/PacificBiosciences/blasr
 	branch = master
+[submodule "hdf5"]
+	path = hdf5
+	url = https://github.com/mortenpi/hdf5.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib.git
+[submodule "htslib"]
+	path = htslib
+	url = https://github.com/samtools/htslib.git
