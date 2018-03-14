@@ -11,3 +11,9 @@
 [submodule "htslib"]
 	path = htslib
 	url = https://github.com/samtools/htslib.git
+[submodule "pbbam"]
+	path = pbbam
+	url = https://github.com/PacificBiosciences/pbbam
+[submodule "blasr_libcpp"]
+	path = blasr_libcpp
+	url = https://github.com/PacificBiosciences/blasr_libcpp
