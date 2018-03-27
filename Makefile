@@ -16,14 +16,22 @@ htslib/libhts.a:
     ./configure --disable-bz2 --disable-lzma ; \
     make -j 8
 
+
+boost_1_66_0.tar.gz:
+	wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
+	tar xvf boost_1_66_0.tar.gz
+
+boost/lib/libboost_program_options.a: boost_1_66_0.tar.gz
+	cd boost_1_66_0 && ./bootstrap.sh && ./b2 -j 4 && ./b2 --prefix=$(PWD)/boost install
+
 #
 # This needs nijna. Crymoji.
 #
 blasr_libcpp/build/liblibcpp.a:
 	cd blasr_libcpp; \
    mkdir build; cd build; \
-   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include .. ; \
-   ninja
+   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include  .. ; \
+   ninja -j 4
 
 
 zlib/build/lib/libz.a:
@@ -33,12 +41,12 @@ zlib/build/lib/libz.a:
     make -j 8; \
     make install
 
-pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a
+pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost/lib/libboost_program_options.a
 	cd pbbam/; \
-   mkdir build; cd build; \
-   cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D PacBioBAM_build_tests=False .. ; \
+   mkdir build; cd build && \
+   cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost -D PacBioBAM_build_tests=False .. && \
    make VERBOSE=1 -j 8 
 
 
-pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a
-	g++ -std=c++11 -g -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
+pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a blasr_libcpp/build/liblibcpp.a
+	g++ -std=c++11 -g -I. -Ihtslib -Iboost/include PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
