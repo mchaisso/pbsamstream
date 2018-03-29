@@ -16,13 +16,13 @@ htslib/libhts.a:
     ./configure --disable-bz2 --disable-lzma ; \
     make -j 8
 
-
-boost_1_66_0.tar.gz:
+boost_1_66_0/bootstrap.sh:
 	wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
 	tar xvf boost_1_66_0.tar.gz
+	touch $@
 
-boost/lib/libboost_program_options.a: boost_1_66_0.tar.gz
-	cd boost_1_66_0 && ./bootstrap.sh && ./b2 -j 4 && ./b2 --prefix=$(PWD)/boost install
+boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
+	cd boost_1_66_0 && ./bootstrap.sh --without-libraries=python && ./b2 --prefix=$PWD/build -j 4
 
 #
 # This needs nijna. Crymoji.
