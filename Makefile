@@ -41,7 +41,7 @@ zlib/build/lib/libz.a:
     make -j 8; \
     make install
 
-pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost/lib/libboost_program_options.a
+pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libboost_program_options.a
 	cd pbbam/; \
    mkdir build; cd build && \
    cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost -D PacBioBAM_build_tests=False .. && \
