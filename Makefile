@@ -49,4 +49,4 @@ pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libb
 
 
 pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a blasr_libcpp/build/liblibcpp.a
-	g++ -std=c++11 -g -I. -Ihtslib -Iboost/include PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
+	g++ -std=c++11 -g -I. -Ihtslib -Iboost_1_66_0 PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
