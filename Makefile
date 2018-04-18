@@ -3,17 +3,27 @@ all: htslib/libhts.a \
 	hdf5/build/lib/libhdf5.a \
   pbsamstream 
 
+build/curl-7.59.0/configure:
+	mkdir -p build
+	wget https://curl.haxx.se/download/curl-7.59.0.tar.gz -O build/curl-7.59.0.tar.gz
+	tar -zxvf build/curl-7.59.0.tar.gz -C build/
+	touch $@
+
+lib/libcurl.a: build/curl-7.59.0/configure
+	cd build/curl-7.59.0; ./configure --enable-static --prefix=$(abspath .)
+	make -C build/curl-7.59.0 install
+
 hdf5/build/lib/libhdf5.a:
 	cd hdf5/ ;\
     ./configure --enable-cxx --prefix=$(PWD)/hdf5/build ; \
     make -j 8 ;\
     make install
 
-htslib/libhts.a:
+htslib/libhts.a: lib/libcurl.a
 	cd htslib; \
     autoheader; \
     autoconf; \
-    ./configure --disable-bz2 --disable-lzma ; \
+    ./configure --disable-bz2 --disable-lzma LD_FLAGS=$(abspath .)/lib; \
     make -j 8
 
 boost_1_66_0/bootstrap.sh:
