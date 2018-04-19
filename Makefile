@@ -37,10 +37,10 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 # This needs nijna. Crymoji.
 #
-blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a
+blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a htslib/libhts.a
 	cd blasr_libcpp; \
    mkdir build; cd build; \
-   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include  .. ; \
+   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include LD_FLAGS=$(abspath .)/lib  .. ; \
    ninja -j 4
 
 
@@ -54,7 +54,7 @@ zlib/build/lib/libz.a:
 pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libboost_program_options.a
 	cd pbbam/; \
    mkdir build; cd build && \
-   cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False .. && \
+   cmake -E env LDFLAGS="-L$(abspath .)/lib -lcurl -lcrypto" cmake -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False .. && \
    make VERBOSE=1 -j 8 
 
 
