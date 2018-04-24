@@ -1,9 +1,11 @@
 [submodule "hdf5"]
 	path = hdf5
 	url = https://github.com/mortenpi/hdf5.git
+	ignore = dirty
 [submodule "zlib"]
 	path = zlib
 	url = https://github.com/madler/zlib.git
+	ignore = dirty
 [submodule "htslib"]
 	path = htslib
 	url = https://github.com/samtools/htslib.git

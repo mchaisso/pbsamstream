@@ -3,17 +3,27 @@ all: htslib/libhts.a \
 	hdf5/build/lib/libhdf5.a \
   pbsamstream 
 
+build/curl-7.59.0/configure:
+	mkdir -p build
+	wget https://curl.haxx.se/download/curl-7.59.0.tar.gz -O build/curl-7.59.0.tar.gz
+	tar -zxvf build/curl-7.59.0.tar.gz -C build/
+	touch $@
+
+lib/libcurl.a: build/curl-7.59.0/configure
+	cd build/curl-7.59.0; ./configure --enable-static --prefix=$(abspath .)
+	make -C build/curl-7.59.0 install
+
 hdf5/build/lib/libhdf5.a:
 	cd hdf5/ ;\
     ./configure --enable-cxx --prefix=$(PWD)/hdf5/build ; \
     make -j 8 ;\
     make install
 
-htslib/libhts.a:
+htslib/libhts.a: lib/libcurl.a
 	cd htslib; \
     autoheader; \
     autoconf; \
-    ./configure --disable-bz2 --disable-lzma ; \
+    ./configure --disable-bz2 --disable-lzma LD_FLAGS=$(abspath .)/lib; \
     make -j 8
 
 boost_1_66_0/bootstrap.sh:
@@ -27,10 +37,10 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 # This needs nijna. Crymoji.
 #
-blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a
+blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a htslib/libhts.a
 	cd blasr_libcpp; \
    mkdir build; cd build; \
-   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include  .. ; \
+   cmake -GNinja  -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False  -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include LD_FLAGS=$(abspath .)/lib  .. ; \
    ninja -j 4
 
 
@@ -44,9 +54,9 @@ zlib/build/lib/libz.a:
 pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libboost_program_options.a
 	cd pbbam/; \
    mkdir build; cd build && \
-   cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False .. && \
+   cmake -E env LDFLAGS="-L$(abspath .)/lib -lcurl -lcrypto" cmake -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib -D BOOST_ROOT=$(PWD)/boost_1_66_0 -D PacBioBAM_build_tests=False .. && \
    make VERBOSE=1 -j 8 
 
 
 pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a blasr_libcpp/build/liblibcpp.a
-	g++ -std=c++11 -g -I. -Ihtslib -Iboost/include PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
+	g++ -std=c++11 -g -I. -Ihtslib -Iboost_1_66_0 PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L libs -L pbbam/build/lib -l pbbam -L htslib  -lhts -lz -lpthread -llibcpp
