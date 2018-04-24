@@ -13,3 +13,9 @@
 [submodule "blasr_libcpp"]
 	path = blasr_libcpp
 	url = https://github.com/PacificBiosciences/blasr_libcpp
+[submodule "curl"]
+	path = curl
+	url = https://github.com/curl/curl.git
+[submodule "openssl"]
+	path = openssl
+	url = https://github.com/openssl/openssl.git
