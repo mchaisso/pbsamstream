@@ -19,7 +19,7 @@ htslib/libhts.a:
     make -j 4
 
 zlib/build/lib/libz.a:
-  cd zlib && ./configure --prefix=$(PWD)/zlib/build && make && make install
+	cd zlib && ./configure --prefix=$(PWD)/zlib/build && make && make install
 
 boost_1_66_0/bootstrap.sh:
 	wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
