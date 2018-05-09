@@ -14,7 +14,7 @@ htslib/libhts.a:
 	cd htslib; \
     autoheader; \
     autoconf; \
-    ./configure --disable-bz2 --disable-lzma --disable-curl --disable-s3; \
+    ./configure --disable-bz2 --disable-lzma --disable-libcurl --disable-s3; \
     make -j 4
 
 boost_1_66_0/bootstrap.sh:
@@ -28,7 +28,7 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 # This needs nijna. Crymoji.
 #
-blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a
+blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a htslib/libhts.a
 	cd blasr_libcpp; \
    mkdir -p build; cd build; \
    cmake -GNinja \
