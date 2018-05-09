@@ -2,6 +2,7 @@ all: htslib/libhts.a \
   blasr_libcpp/build/liblibcpp.a \
   pbbam/build/lib/libpbbam.a \
 	hdf5/build/lib/libhdf5.a \
+  zlib/build/lib/libz.a \
   pbsamstream 
 
 hdf5/build/lib/libhdf5.a:
@@ -16,6 +17,9 @@ htslib/libhts.a:
     autoconf; \
     ./configure --disable-bz2 --disable-lzma --disable-libcurl --disable-s3; \
     make -j 4
+
+zlib/build/lib/libz.a:
+	cd zlib && ./configure --prefix=$(PWD)/zlib/build && make && make install
 
 boost_1_66_0/bootstrap.sh:
 	wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
@@ -59,4 +63,4 @@ pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libb
    make VERBOSE=1 -j 4
 
 pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a 
-	g++ -static -std=c++11 -g -I $(PWD)/boost_1_66_0 -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L pbbam/build/lib -l pbbam -L htslib -llibcpp -lhts -lz -L openssl -lssl -lcrypto  -ldl    -lpthread
+	g++ -static -std=c++11 -g -I $(PWD)/boost_1_66_0 -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L pbbam/build/lib -l pbbam -L htslib -llibcpp -lhts -ldl -lpthread -L zlib/build/lib -lz
