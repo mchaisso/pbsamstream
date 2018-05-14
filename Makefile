@@ -6,10 +6,13 @@ all: htslib/libhts.a \
   pbsamstream 
 
 hdf5/build/lib/libhdf5.a:
-	cd hdf5/ ;\
-    ./configure --enable-cxx --prefix=$(PWD)/hdf5/build ; \
-    make -j 4 ;\
-    make install
+	mkdir -p $(PWD)/hdf5/build
+	cd hdf5/ && \
+  mkdir cmake_build && \
+  cd cmake_build && \
+  cmake ..  -DHDF5_BUILD_CPP_LIB:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/hdf5/build/build && \
+  make -j 8 && \
+  make install
 
 htslib/libhts.a:
 	cd htslib; \
@@ -32,7 +35,7 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 # This needs nijna. Crymoji.
 #
-blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a htslib/libhts.a
+blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.so htslib/libhts.a
 	cd blasr_libcpp; \
    mkdir -p build; cd build; \
    cmake -GNinja \
