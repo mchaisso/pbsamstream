@@ -7,11 +7,12 @@ all: htslib/libhts.a \
 
 hdf5/build/lib/libhdf5.a:
 	mkdir -p $(PWD)/hdf5/build
+	export CXXFLAGS="-std=c++11"
 	cd hdf5/ && \
   mkdir -p cmake_build && \
   cd cmake_build && \
-  cmake ..  -DHDF5_BUILD_CPP_LIB:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/hdf5/build/build && \
-  make -j 8 && \
+  cmake ..  -DHDF5_BUILD_CPP_LIB:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/hdf5/build  && \
+  make -j 8 VERBOSE=1 && \
   make install
 
 htslib/libhts.a:
@@ -37,8 +38,11 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a htslib/libhts.a
 	cd blasr_libcpp; \
+   rm -rf build; \
    mkdir -p build; cd build; \
    cmake -GNinja \
+     -D CMAKE_CXX_STANDARD=11 \
+     -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
      -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a \
      -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib \
      -D PacBioBAM_build_tests=False \
@@ -46,7 +50,7 @@ blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.
      -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include \
      -D BOOST_ROOT=$(PWD)/boost_1_66_0/ \
         .. ; \
-   ninja
+   ninja -v -j 8
 
 
 zlib/build/lib/libz.a:
@@ -58,12 +62,15 @@ zlib/build/lib/libz.a:
 
 pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libboost_program_options.a
 	cd pbbam/; \
+   rm -rf build; \
    mkdir -p build; cd build; \
    cmake   -D HTSLIB_LIBRARIES=$(PWD)/htslib/libhts.a \
+   -D HDF5_LIBRARIES=$(PWD)/hdf5/build/lib \
+   -D HDF5_INCLUDE_DIRS=$(PWD)/hdf5/build/include \
    -D HTSLIB_INCLUDE_DIRS=$(PWD)/htslib \
    -D PacBioBAM_build_tests=False \
    -D BOOST_ROOT=$(PWD)/boost_1_66_0/ .. ; \
-   make VERBOSE=1 -j 4
+   make VERBOSE=1 -j 8
 
 pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a 
 	g++ -static -std=c++11 -g -I $(PWD)/boost_1_66_0 -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L pbbam/build/lib -l pbbam -L htslib -llibcpp -lhts -ldl -lpthread -L zlib/build/lib -lz
