@@ -11,7 +11,7 @@ hdf5/build/lib/libhdf5.a:
 	cd hdf5/ && \
   mkdir -p cmake_build && \
   cd cmake_build && \
-  cmake ..  -DHDF5_BUILD_CPP_LIB:BOOL=ON -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/hdf5/build  && \
+  cmake ..  -DHDF5_BUILD_CPP_LIB:BOOL=ON -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/hdf5/build  && \
   make -j 8 VERBOSE=1 && \
   make install
 
