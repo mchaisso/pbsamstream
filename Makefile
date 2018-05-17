@@ -31,12 +31,13 @@ boost_1_66_0/bootstrap.sh:
 	touch $@
 
 boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
-	cd boost_1_66_0 && ./bootstrap.sh --without-libraries=python && ./b2 --prefix=$PWD/build -j 2
+	cd boost_1_66_0 && ./bootstrap.sh --without-libraries=python && ./b2 --prefix=$PWD/build -j 8
 
 #
 # This needs nijna. Crymoji.
 #
 blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a htslib/libhts.a
+	export CXXFLAGS="-std=c++11"
 	cd blasr_libcpp; \
    rm -rf build; \
    mkdir -p build; cd build; \
