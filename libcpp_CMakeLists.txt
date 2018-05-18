@@ -1,0 +1,85 @@
+##############################################
+# CMake build script for the BLASRLIBCPP library
+##############################################
+
+cmake_policy(SET CMP0048 NEW)
+project(BLASRLIBCPP VERSION 5.3.0 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.6)
+
+set(ROOT_PROJECT_NAME ${PROJECT_NAME} CACHE STRING "root project name")
+
+# Build type
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug Release Profile RelWithDebInfo ReleaseWithAssert" FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
+# Main project paths
+set(BLASRLIBCPP_RootDir ${BLASRLIBCPP_SOURCE_DIR})
+
+# Project configuration
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+# Fixed order, do not sort or shuffle
+include(blasrlibcpp-ccache)
+include(blasrlibcpp-releasewithassert)
+include(blasrlibcpp-dependencies)
+include(blasrlibcpp-compilerflags)
+include(blasrlibcpp-gitsha1)
+
+file(WRITE pbdata/LibBlasrConfig.h "")
+
+GET_PROPERTY(BLASRLIBCPP_COMPIPLE_FLAGS GLOBAL PROPERTY BLASRLIBCPP_COMPIPLE_FLAGS_GLOBAL)
+GET_PROPERTY(BLASRLIBCPP_LINK_FLAGS GLOBAL PROPERTY BLASRLIBCPP_LINK_FLAGS_GLOBAL)
+GET_PROPERTY(HDF5_LINKER_FLAG_LOCAL GLOBAL PROPERTY HDF5_LINKER_FLAG_GLOBAL)
+
+set(LOCAL_LINKER_FLAGS "${HDF5_LINKER_FLAG_LOCAL} ${BLASRLIBCPP_LINK_FLAGS}")
+
+# libcpp library
+file(GLOB HDF5_CPP "${BLASRLIBCPP_RootDir}/hdf/*.cpp")
+file(GLOB_RECURSE ALIGNMENT_CPP "${BLASRLIBCPP_RootDir}/alignment/*.cpp")
+file(GLOB_RECURSE PBDATA_CPP "${BLASRLIBCPP_RootDir}/pbdata/*.cpp")
+
+add_library(libcpp
+    ${HDF5_CPP}
+    ${ALIGNMENT_CPP}
+    ${PBDATA_CPP}
+)
+
+target_include_directories(libcpp PUBLIC
+    ${BLASRLIBCPP_RootDir}/hdf
+    ${BLASRLIBCPP_RootDir}/alignment
+    ${BLASRLIBCPP_RootDir}/pbdata
+    ${HDF5_INCLUDE_DIRS}
+    ${PacBioBAM_INCLUDE_DIRS}
+)
+
+target_link_libraries(libcpp ${PacBioBAM_LIBRARIES})
+
+set_target_properties(libcpp PROPERTIES COMPILE_FLAGS ${BLASRLIBCPP_COMPIPLE_FLAGS})
+if (LOCAL_LINKER_FLAGS)
+    set_target_properties(libcpp PROPERTIES LINK_FLAGS ${LOCAL_LINKER_FLAGS})
+endif()
+
+# Tests
+enable_testing()
+
+## build gtest
+add_subdirectory(${BLASRLIBCPP_RootDir}/googletest/googletest external/gtest)
+
+## build libcpp tests
+file(GLOB_RECURSE TEST_CPP "${BLASRLIBCPP_RootDir}/unittest/*/*.cpp")
+
+add_executable(libcpptest ${TEST_CPP})
+target_include_directories(libcpptest PUBLIC ${BLASRLIBCPP_RootDir}/unittest)
+target_link_libraries(libcpptest gtest_main libcpp hdf5 hdf5_cpp hdf5 dl ${ZLIB_LDFLAGS})
+add_test(libcpptest libcpptest)
+
+set_target_properties(libcpptest PROPERTIES COMPILE_FLAGS "${BLASRLIBCPP_COMPIPLE_FLAGS}")
+
+if (LOCAL_LINKER_FLAGS)
+    set_target_properties(libcpptest PROPERTIES LINK_FLAGS ${LOCAL_LINKER_FLAGS})
+endif()
+
+add_custom_target(check_libcpp
+    COMMAND libcpptest --gtest_output=xml:${CMAKE_BINARY_DIR}/libcpp-unit.xml
+    WORKING_DIRECTORY ${BLASRLIBCPP_RootDir})
