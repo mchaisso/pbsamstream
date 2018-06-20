@@ -84,4 +84,4 @@ pbbam/build/lib/libpbbam.a: hdf5/build/lib/libhdf5.a boost_1_66_0/stage/lib/libb
    make VERBOSE=1 -j 8
 
 pbsamstream: PBSamStream.cpp htslib/libhts.a pbbam/build/lib/libpbbam.a zlib/build/lib/libz.a blasr_libcpp/build/liblibcpp.a
-	g++ -static -std=c++11 -g -I $(PWD)/boost_1_66_0 -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L pbbam/build/lib -l pbbam -L htslib -llibcpp -lhts -ldl -lpthread -L zlib/build/lib -lz
+	g++ -std=c++11 -g -I $(PWD)/boost_1_66_0 -I. -Ihtslib PBSamStream.cpp -o pbsamstream -I blasr_libcpp -L blasr_libcpp/build -I pbbam/include -L pbbam/build/lib -l pbbam -L htslib -llibcpp -lhts -lpthread -L zlib/build/lib -lz
