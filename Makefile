@@ -3,6 +3,7 @@ all: htslib/libhts.a \
   pbbam/build/lib/libpbbam.a \
 	hdf5/build/lib/libhdf5.a \
   zlib/build/lib/libz.a \
+  boost_1_66_0/stage/lib/libboost_program_options.a \
   pbsamstream 
 
 hdf5/build/lib/libhdf5.a:
