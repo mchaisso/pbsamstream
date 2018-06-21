@@ -42,7 +42,7 @@ boost_1_66_0/stage/lib/libboost_program_options.a: boost_1_66_0/bootstrap.sh
 #
 blasr_libcpp/build/liblibcpp.a: boost_1_66_0/stage/lib/libboost_program_options.a hdf5/build/lib/libhdf5.a htslib/libhts.a
 	cp libcpp_CMakeLists.txt blasr_libcpp/CMakeLists.txt
-	export CPPFLAGS="-std=c++11 -ldl "
+	export CPPFLAGS="-std=c++11 "
 	cd blasr_libcpp; \
    rm -rf build; \
    mkdir -p build; cd build; \
